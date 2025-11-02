@@ -1,0 +1,16 @@
+[package]
+name = "subscription_pass"
+version = "1.0.0"
+
+[addresses]
+subscription_pass = "0xe30f7fc58ecb3c59b2f43bad077b52a64a7b572d2dc7986914721ad808b175b5"
+
+[dev-addresses]
+subscription = "e30f7fc58ecb3c59b2f43bad077b52a64a7b572d2dc7986914721ad808b175b5"
+
+[dependencies.AptosFramework]
+git = "https://github.com/aptos-labs/aptos-framework.git"
+rev = "mainnet"
+subdir = "aptos-framework"
+
+[dev-dependencies]

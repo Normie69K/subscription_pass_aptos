@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aptos Subscription Pass | Premium Access</title>
+  <!-- <script src="https://unpkg.com/aptos@1.13.1/dist/index.global.js"></script> -->
+   <!-- Replace the old script tag with this -->
+    <!-- Use latest version -->
+     <script src="https://unpkg.com/@aptos-labs/ts-sdk@1.9.1/dist/browser/index.global.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary: #8b5cf6;
+      --accent: #ec4899;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --dark: #0f172a;
+      --dark-light: #1e293b;
+      --gray: #64748b;
+      --light: #f1f5f9;
+      --white: #ffffff;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: var(--dark);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.3) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      animation: fadeInDown 0.6s ease;
+    }
+
+    .logo h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff 0%, #e0e7ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+      text-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);
+    }
+
+    .tagline {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1.2rem;
+      font-weight: 300;
+      margin-bottom: 30px;
+    }
+
+    .header-stats {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .stat-badge {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      padding: 12px 24px;
+      border-radius: 12px;
+      color: white;
+      font-size: 0.9rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .stat-badge:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-2px);
+    }
+
+    .main-content {
+      animation: fadeInUp 0.6s ease 0.2s both;
+    }
+
+    .wallet-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 40px;
+      margin-bottom: 30px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .wallet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .wallet-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--dark);
+    }
+
+    .wallet-icon {
+      font-size: 2rem;
+    }
+
+    .btn {
+      padding: 14px 32px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .btn:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(99, 102, 241, 0.5);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+
+    .btn-secondary:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .pricing-section {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 50px 40px;
+      margin-bottom: 30px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin-bottom: 15px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .section-subtitle {
+      text-align: center;
+      color: var(--gray);
+      margin-bottom: 40px;
+      font-size: 1.1rem;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    .tier-card {
+      background: white;
+      border-radius: 20px;
+      padding: 35px;
+      border: 2px solid #e2e8f0;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tier-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      transform: scaleX(0);
+      transition: transform 0.4s ease;
+    }
+
+    .tier-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
+      border-color: var(--primary);
+    }
+
+    .tier-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .tier-card.popular {
+      border: 2px solid var(--primary);
+      box-shadow: 0 15px 35px rgba(99, 102, 241, 0.15);
+    }
+
+    .tier-card.premium {
+      border: 2px solid var(--accent);
+      background: linear-gradient(135deg, #fff 0%, #fdf2f8 100%);
+    }
+
+    .tier-badge {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 15px;
+      background: linear-gradient(135deg, #e0e7ff 0%, #ddd6fe 100%);
+      color: var(--primary);
+    }
+
+    .popular-badge {
+      position: absolute;
+      top: 20px;
+      right: -35px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 5px 40px;
+      transform: rotate(45deg);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .premium-badge {
+      background: linear-gradient(135deg, var(--accent), var(--secondary));
+      color: white;
+      position: absolute;
+      top: 20px;
+      right: -35px;
+      padding: 5px 40px;
+      transform: rotate(45deg);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .tier-price {
+      margin: 25px 0;
+      text-align: center;
+    }
+
+    .price-amount {
+      font-size: 3.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .price-currency {
+      font-size: 1.5rem;
+      color: var(--gray);
+      margin-left: 8px;
+    }
+
+    .tier-duration {
+      text-align: center;
+      color: var(--gray);
+      font-size: 1.1rem;
+      margin-bottom: 25px;
+      font-weight: 600;
+    }
+
+    .tier-save {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      color: #92400e;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-align: center;
+      margin: 15px 0;
+    }
+
+    .tier-features {
+      margin: 25px 0;
+    }
+
+    .tier-features ul {
+      list-style: none;
+    }
+
+    .tier-features li {
+      padding: 10px 0;
+      color: var(--dark);
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tier-features li::before {
+      content: '✓';
+      color: var(--success);
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    .btn-tier {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+
+    .btn-tier:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+    }
+
+    .status {
+      margin-top: 20px;
+      padding: 16px 20px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      animation: slideIn 0.4s ease;
+    }
+
+    .status.success {
+      background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+      color: #065f46;
+      border-left: 4px solid var(--success);
+    }
+
+    .status.error {
+      background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+      color: #991b1b;
+      border-left: 4px solid #ef4444;
+    }
+
+    .status.info {
+      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+      color: #1e40af;
+      border-left: 4px solid #3b82f6;
+    }
+
+    .status.warning {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      color: #92400e;
+      border-left: 4px solid var(--warning);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 25px;
+      margin-top: 30px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .feature-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 35px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      transition: all 0.4s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.2);
+    }
+
+    .feature-icon {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+    }
+
+    .feature-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--dark);
+    }
+
+    .feature-description {
+      color: var(--gray);
+      line-height: 1.6;
+    }
+
+    .selected-plan {
+      background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+      border-radius: 16px;
+      padding: 25px;
+      margin-top: 30px;
+      border: 2px solid var(--primary);
+      animation: slideIn 0.4s ease;
+    }
+
+    .selected-plan-title {
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+    }
+
+    .selected-plan-details {
+      color: var(--dark);
+      font-size: 0.95rem;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 50px;
+      padding: 30px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.9rem;
+    }
+
+    .footer strong {
+      color: white;
+      font-weight: 700;
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes unlock {
+      0% { transform: scale(0.95); opacity: 0; }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @media (max-width: 768px) {
+      .logo h1 {
+        font-size: 2rem;
+      }
+
+      .pricing-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .wallet-card, .pricing-section {
+        padding: 30px 20px;
+      }
+
+      .tier-card {
+        padding: 25px;
+      }
+    }
+
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 3px solid white;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="logo">
+        <h1>🎫 Aptos Subscription Pass</h1>
+        <p class="tagline">Decentralized Access Management on Blockchain</p>
+      </div>
+      <div class="header-stats">
+        <div id="network" class="stat-badge">Network: Devnet</div>
+        <div id="contractAddr" class="stat-badge">Contract: Loading...</div>
+        <!-- <div id="totalPasses" class="stat-badge">Total Passes: 0</div> -->
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="wallet-card">
+        <div class="wallet-header">
+          <h2 class="wallet-title">
+            <span class="wallet-icon">🔗</span>
+            Wallet Connection
+          </h2>
+          <button id="connectBtn" class="btn btn-primary">
+            Connect Wallet
+          </button>
+        </div>
+        <div id="acct" class="status info">Connect your Aptos wallet to get started</div>
+      </div>
+
+      <section class="pricing-section">
+        <h2 class="section-title">Choose Your Subscription Plan</h2>
+        <p class="section-subtitle">Select the plan that fits your needs</p>
+        
+        <div class="pricing-grid">
+          <div class="tier-card" data-tier="7">
+            <div class="tier-badge">WEEKLY</div>
+            <div class="tier-price">
+              <span class="price-amount">0.05</span>
+              <span class="price-currency">APT</span>
+            </div>
+            <div class="tier-duration">7 Days Access</div>
+            <div class="tier-features">
+              <ul>
+                <li>7-day validity</li>
+                <li>On-chain verification</li>
+                <li>Perfect for testing</li>
+              </ul>
+            </div>
+            <button class="btn-tier" data-tier="7" disabled>Select Weekly</button>
+          </div>
+
+          <div class="tier-card popular" data-tier="30">
+            <div class="popular-badge">MOST POPULAR</div>
+            <div class="tier-badge">MONTHLY</div>
+            <div class="tier-price">
+              <span class="price-amount">0.15</span>
+              <span class="price-currency">APT</span>
+            </div>
+            <div class="tier-duration">30 Days Access</div>
+            <div class="tier-features">
+              <ul>
+                <li>30-day validity</li>
+                <li>Priority support</li>
+                <li>Best value</li>
+              </ul>
+            </div>
+            <button class="btn-tier" data-tier="30" disabled>Select Monthly</button>
+          </div>
+
+          <div class="tier-card" data-tier="90">
+            <div class="tier-badge">QUARTERLY</div>
+            <div class="tier-price">
+              <span class="price-amount">0.40</span>
+              <span class="price-currency">APT</span>
+            </div>
+            <div class="tier-duration">90 Days Access</div>
+            <div class="tier-features">
+              <ul>
+                <li>90-day validity</li>
+                <li>Priority support</li>
+                <li>Extended access</li>
+              </ul>
+            </div>
+            <button class="btn-tier" data-tier="90" disabled>Select Quarterly</button>
+          </div>
+
+          <div class="tier-card premium" data-tier="365">
+            <div class="premium-badge">BEST DEAL</div>
+            <div class="tier-badge">YEARLY</div>
+            <div class="tier-price">
+              <span class="price-amount">1.50</span>
+              <span class="price-currency">APT</span>
+            </div>
+            <div class="tier-duration">365 Days Access</div>
+            <div class="tier-save">Save 59%</div>
+            <div class="tier-features">
+              <ul>
+                <li>Full year access</li>
+                <li>VIP support</li>
+                <li>Maximum savings</li>
+              </ul>
+            </div>
+            <button class="btn-tier" data-tier="365" disabled>Select Yearly</button>
+          </div>
+        </div>
+
+        <div id="selectedPlan"></div>
+        <div id="buyStatus" class="status" style="display: none;"></div>
+      </section>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">✅</div>
+          <h3 class="feature-title">Verify Your Access</h3>
+          <p class="feature-description">Check your current subscription status and expiration date</p>
+          <button id="verifyBtn" class="btn btn-secondary" style="margin-top: 20px; width: 100%;" disabled>
+            🔍 Check Status
+          </button>
+          <div id="verifyResult" class="status" style="display: none;"></div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <p>Built on <strong>Aptos Blockchain</strong> | Powered by Move Language</p>
+      <p style="margin-top: 10px; opacity: 0.8;">Make sure you're on Devnet network • Contract is decentralized and immutable</p>
+    </footer>
+  </div>
+
+ <!-- <script src="https://unpkg.com/@aptos-labs/ts-sdk@1.13.1/dist/browser/index.global.js"></script> -->
+
+<script>
+  // ============================================
+  // GLOBAL VARIABLES
+  // ============================================
+  let client;
+  let account = null;
+  let selectedTier = null;
+  
+  const CONTRACT_ADDRESS = "0xe30f7fc58ecb3c59b2f43bad077b52a64a7b572d2dc7986914721ad808b175b5";
+
+  // ============================================
+  // UTILITY FUNCTIONS (Define these FIRST)
+  // ============================================
+  
+  function showStatus(elementId, message, type) {
+    const element = document.getElementById(elementId);
+    if (element) {
+      element.textContent = message;
+      element.className = `status ${type}`;
+      element.style.display = 'block';
+    }
+  }
+
+  function updateContractInfo() {
+    const shortAddr = `${CONTRACT_ADDRESS.substring(0, 6)}...${CONTRACT_ADDRESS.substring(CONTRACT_ADDRESS.length - 4)}`;
+    const element = document.getElementById('contractAddr');
+    if (element) {
+      element.textContent = `Contract: ${shortAddr}`;
+    }
+  }
+
+  async function fetchTotalPasses() {
+    if (!client) return;
+    try {
+      const result = await client.view({
+        payload: {
+          function: `${CONTRACT_ADDRESS}::pass::get_total_passes_sold`,
+          typeArguments: [],
+          functionArguments: [CONTRACT_ADDRESS]
+        }
+      });
+      const element = document.getElementById('totalPasses');
+      if (element) {
+        element.textContent = `Total Passes: ${result[0]}`;
+      }
+    } catch (error) {
+      console.warn('Could not fetch total passes:', error.message);
+    }
+  }
+
+  // ============================================
+  // SDK INITIALIZATION
+  // ============================================
+  
+  function waitForSDK() {
+    return new Promise((resolve, reject) => {
+      let attempts = 0;
+      const maxAttempts = 50; // 5 seconds max
+      
+      const checkSDK = setInterval(() => {
+        attempts++;
+        
+        // Check all possible locations
+        if (window.aptosSDK || window.Aptos || window['@aptos-labs/ts-sdk']) {
+          clearInterval(checkSDK);
+          console.log('✅ SDK detected after', attempts * 100, 'ms');
+          resolve(true);
+        } else if (attempts >= maxAttempts) {
+          clearInterval(checkSDK);
+          reject(new Error('SDK failed to load after 5 seconds'));
+        }
+      }, 100);
+    });
+  }
+
+  async function initializeClient() {
+    try {
+      console.log('🚀 Initializing Aptos client...');
+      
+      // Wait for SDK to be available
+      await waitForSDK();
+      
+      let Aptos, AptosConfig, Network;
+      
+      // Try multiple possible SDK locations
+      if (window.aptosSDK) {
+        console.log('📦 Loading from window.aptosSDK');
+        ({ Aptos, AptosConfig, Network } = window.aptosSDK);
+      } else if (window.Aptos && window.AptosConfig && window.Network) {
+        console.log('📦 Loading from window globals');
+        Aptos = window.Aptos;
+        AptosConfig = window.AptosConfig;
+        Network = window.Network;
+      } else if (window['@aptos-labs/ts-sdk']) {
+        console.log('📦 Loading from window["@aptos-labs/ts-sdk"]');
+        ({ Aptos, AptosConfig, Network } = window['@aptos-labs/ts-sdk']);
+      } else {
+        throw new Error('Aptos SDK components not found');
+      }
+      
+      // Validate components
+      if (!Aptos || !AptosConfig || !Network) {
+        throw new Error('Missing SDK components: ' + 
+          (!Aptos ? 'Aptos ' : '') + 
+          (!AptosConfig ? 'AptosConfig ' : '') + 
+          (!Network ? 'Network' : ''));
+      }
+      
+      // Initialize client
+      const config = new AptosConfig({ network: Network.DEVNET });
+      client = new Aptos(config);
+      
+      console.log('✅ Client initialized successfully');
+      
+      // Update UI
+      updateContractInfo();
+      fetchTotalPasses();
+      
+    } catch (error) {
+      console.error('❌ Initialization failed:', error);
+      showStatus('acct', `⚠️ Failed to initialize: ${error.message}. Try refreshing the page.`, 'error');
+    }
+  }
+
+  // ============================================
+  // WALLET CONNECTION
+  // ============================================
+  
+  async function connectWallet() {
+    try {
+      if (typeof window.aptos === 'undefined') {
+        showStatus('acct', '⚠️ Petra Wallet not detected. Please install from https://petra.app/', 'error');
+        window.open('https://petra.app/', '_blank');
+        return;
+      }
+
+      const response = await window.aptos.connect();
+      account = response.address;
+      
+      const shortAddr = `${account.substring(0, 6)}...${account.substring(account.length - 4)}`;
+      document.getElementById('connectBtn').textContent = `✓ ${shortAddr}`;
+      document.getElementById('connectBtn').style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100())';
+      
+      showStatus('acct', `✅ Connected: ${account}`, 'success');
+      
+      // Enable buttons
+      document.getElementById('verifyBtn').disabled = false;
+      document.querySelectorAll('.btn-tier').forEach(btn => btn.disabled = false);
+      
+    } catch (error) {
+      if (error.message && error.message.includes('User rejected')) {
+        showStatus('acct', '⚠️ Connection cancelled by user', 'warning');
+      } else {
+        showStatus('acct', '❌ Failed to connect: ' + error.message, 'error');
+      }
+    }
+  }
+
+  // ============================================
+  // PURCHASE PASS (FIXED VERSION)
+  // ============================================
+  
+  async function purchasePass() {
+    if (!account) {
+      showStatus('buyStatus', '❌ Please connect your wallet first', 'error');
+      return;
+    }
+    if (!client) {
+      showStatus('buyStatus', '❌ Client not ready. Please refresh the page.', 'error');
+      return;
+    }
+    
+    const btn = document.getElementById('purchaseBtn');
+    const originalText = btn.textContent;
+    btn.innerHTML = '<span class="spinner"></span>Processing...';
+    btn.disabled = true;
+    
+    const names = { '7': 'Weekly', '30': 'Monthly', '90': 'Quarterly', '365': 'Yearly' };
+    
+    try {
+      // Correct payload format for Petra Wallet
+      const payload = {
+        type: "entry_function_payload",
+        function: `${CONTRACT_ADDRESS}::pass::purchase_pass`,
+        type_arguments: [],
+        arguments: [CONTRACT_ADDRESS, selectedTier.toString()]
+      };
+
+      console.log('📤 Sending transaction:', payload);
+
+      // Use the new format with object destructuring
+      const response = await window.aptos.signAndSubmitTransaction({
+        payload: payload
+      });
+      
+      const txHash = response.hash || response;
+      console.log('📝 Transaction hash:', txHash);
+      showStatus('buyStatus', '⏳ Waiting for confirmation...', 'info');
+      
+      // Wait for transaction confirmation
+      await client.waitForTransaction({ transactionHash: txHash });
+      
+      const shortHash = `${txHash.substring(0, 10)}...`;
+      showStatus('buyStatus', `✅ ${names[selectedTier]} Pass purchased! Tx: ${shortHash}`, 'success');
+      
+      btn.textContent = '✓ Purchase Complete';
+      btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+      
+      fetchTotalPasses();
+
+    } catch (error) {
+      console.error('❌ Purchase failed:', error);
+      let errorMsg = error.message || 'Unknown error';
+      
+      if (errorMsg.includes('User rejected') || errorMsg.includes('User declined')) {
+        errorMsg = 'Transaction cancelled';
+      } else if (errorMsg.includes('INSUFFICIENT_BALANCE') || errorMsg.includes('insufficient')) {
+        errorMsg = 'Insufficient APT balance';
+      } else if (errorMsg.includes('EALREADY_HAS_ACTIVE_PASS')) {
+        errorMsg = 'You already have an active pass';
+      } else if (errorMsg.includes('EINVALID_DURATION')) {
+        errorMsg = 'Invalid subscription duration';
+      }
+      
+      showStatus('buyStatus', `❌ Failed: ${errorMsg}`, 'error');
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }
+  }
+
+  // ============================================
+  // VERIFY PASS
+  // ============================================
+  
+  async function verifyPass() {
+    if (!account) {
+      showStatus('verifyResult', '❌ Please connect your wallet first', 'error');
+      return;
+    }
+    if (!client) {
+      showStatus('verifyResult', '❌ Client not ready. Please refresh.', 'error');
+      return;
+    }
+    
+    const btn = document.getElementById('verifyBtn');
+    const originalText = btn.textContent;
+    btn.innerHTML = '<span class="spinner"></span>Checking...';
+    btn.disabled = true;
+    
+    try {
+      const result = await client.view({
+        payload: {
+          function: `${CONTRACT_ADDRESS}::pass::get_pass_info`,
+          typeArguments: [],
+          functionArguments: [CONTRACT_ADDRESS, account]
+        }
+      });
+      
+      const hasValidPass = result[0];
+      const expiresAt = result[3];
+      
+      if (hasValidPass) {
+        const expDate = new Date(parseInt(expiresAt) * 1000);
+        const now = new Date();
+        const daysLeft = Math.ceil((expDate - now) / (1000 * 60 * 60 * 24));
+        
+        showStatus('verifyResult', 
+          `✅ Active Pass! Expires: ${expDate.toLocaleDateString()} (${daysLeft} days left)`, 
+          'success'
+        );
+      } else {
+        showStatus('verifyResult', '⚠️ No active pass. Purchase a subscription below.', 'warning');
+      }
+    } catch (error) {
+      console.error('❌ Verify failed:', error);
+      showStatus('verifyResult', `❌ Check failed: ${error.message}`, 'error');
+    } finally {
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }
+  }
+
+  // ============================================
+  // EVENT LISTENERS
+  // ============================================
+  
+  function setupEventListeners() {
+    // Connect wallet button
+    const connectBtn = document.getElementById('connectBtn');
+    if (connectBtn) {
+      connectBtn.addEventListener('click', connectWallet);
+    }
+
+    // Verify button
+    const verifyBtn = document.getElementById('verifyBtn');
+    if (verifyBtn) {
+      verifyBtn.addEventListener('click', verifyPass);
+    }
+
+    // Tier selection buttons
+    document.querySelectorAll('.btn-tier').forEach(btn => {
+      btn.addEventListener('click', function() {
+        selectedTier = this.getAttribute('data-tier');
+        const prices = { '7': '0.05', '30': '0.15', '90': '0.40', '365': '1.50' };
+        const names = { '7': 'Weekly', '30': 'Monthly', '90': 'Quarterly', '365': 'Yearly' };
+        
+        // Visual feedback
+        document.querySelectorAll('.tier-card').forEach(card => {
+          card.style.borderColor = '';
+          card.style.boxShadow = '';
+        });
+        
+        this.closest('.tier-card').style.borderColor = 'var(--secondary)';
+        this.closest('.tier-card').style.boxShadow = '0 20px 40px rgba(139, 92, 246, 0.3)';
+        
+        // Show selected plan
+        const selectedPlanDiv = document.getElementById('selectedPlan');
+        selectedPlanDiv.innerHTML = `
+          <div class="selected-plan">
+            <div class="selected-plan-title">✓ ${names[selectedTier]} Pass Selected</div>
+            <div class="selected-plan-details">
+              Price: ${prices[selectedTier]} APT | Duration: ${selectedTier} days
+            </div>
+            <button id="purchaseBtn" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
+              💳 Purchase ${names[selectedTier]} Pass
+            </button>
+          </div>
+        `;
+        
+        // Add purchase listener
+        document.getElementById('purchaseBtn').addEventListener('click', purchasePass);
+      });
+    });
+  }
+
+  // ============================================
+  // INITIALIZATION
+  // ============================================
+  
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('📄 DOM ready');
+      setupEventListeners();
+      initializeClient();
+    });
+  } else {
+    console.log('📄 DOM already loaded');
+    setupEventListeners();
+    initializeClient();
+  }
+</script>
+</body>
+</html>
